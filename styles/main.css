@@ -1,0 +1,9 @@
+.side-panel {
+    float: left;
+    width: 50%;
+}
+
+.main-content {
+    float: left;
+    width: 50%;
+}
