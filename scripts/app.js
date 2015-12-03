@@ -23,3 +23,8 @@ xhr.addEventListener('load', function() {
 
 xhr.send();
 
+setTimeout(function() {
+  console.log(123);
+}, 0);
+
+console.log(0);

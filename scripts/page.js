@@ -23,22 +23,23 @@ module.exports = class Page {
   }
 
   _onMenuItemClick(event) {
-    this._loadPhone(event.detail.phoneId);
+    this._phoneRequest = fetch('phones/' + event.detail.phoneId + '.json');
+
+    this._menu.getElement().addEventListener('mouseleave', this._onMouseLeave.bind(this));
   }
 
-  _loadPhone(phoneId) {
-    this._xhr = new XMLHttpRequest();
-
-    this._xhr.open('GET', 'phones/' + phoneId + '.json', true);
-
-    this._xhr.addEventListener('load', this._phoneLoaded.bind(this));
-
-    this._xhr.send();
+  _onMouseLeave() {
+    this._phoneRequest
+      .then(function(response) {
+        return response.json();
+      })
+      .then(this._onPhoneLoaded.bind(this))
+      .catch(function(error) {
+      	alert(error.message)
+      });
   }
 
-  _phoneLoaded() {
-    var data = JSON.parse(this._xhr.responseText);
-
+  _onPhoneLoaded(data) {
     this._mainContent.innerHTML = '<img src="' + data.images[0] + '">';
   }
 
