@@ -29,14 +29,14 @@ module.exports = class Page {
   }
 
   _onMouseLeave() {
-    this._phoneRequest
-      .then(function(response) {
-        return response.json();
-      })
-      .then(this._onPhoneLoaded.bind(this))
-      .catch(function(error) {
-      	alert(error.message)
-      });
+    var self = this;
+
+    co(function*() {
+      var response = yield self._phoneRequest;
+      var phone = yield response.json();
+
+      self._onPhoneLoaded(phone);
+    }).catch(alert);
   }
 
   _onPhoneLoaded(data) {

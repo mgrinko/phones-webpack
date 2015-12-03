@@ -1,30 +1,32 @@
 'use strict';
 
+function customFetch(url) {
+  return new Promise(function(resolve, reject) {
+    var xhr = new XMLHttpRequest();
+
+    xhr.open('GET', url, true);
+
+    xhr.addEventListener('load', function() {
+      resolve(JSON.parse(xhr.responseText));
+    });
+
+    xhr.addEventListener('error', function(error) {
+      reject(error);
+    });
+
+    xhr.send();
+  });
+}
+
 var Page = require('./page');
 
-var xhr = new XMLHttpRequest();
+var phonesRequest = customFetch('phones/phones.json');
+phonesRequest.then(function(data) {
+  let menuItems = data;
 
-// 2. Конфигурируем его: GET-запрос на URL 'phones.json'
-xhr.open('GET', 'phones/phones.json', true);
-
-xhr.addEventListener('load', function() {
-  if (xhr.status != 200) {
-    // обработать ошибку
-    alert( xhr.status + ': ' + xhr.statusText ); // пример вывода: 404: Not Found
-  } else {
-    let menuItems = JSON.parse(xhr.responseText);
-
-    let page = new Page({
-      el: document.querySelector('[data-component=page]'),
-      menuItems: menuItems
-    });
-  }
+  let page = new Page({
+    el: document.querySelector('[data-component=page]'),
+    menuItems: menuItems
+  });
 });
 
-xhr.send();
-
-setTimeout(function() {
-  console.log(123);
-}, 0);
-
-console.log(0);
