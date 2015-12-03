@@ -23,22 +23,49 @@ module.exports = class Page {
   }
 
   _onMenuItemClick(event) {
-    this._loadPhone(event.detail.phoneId);
+    var phoneRequest = this._getPhone(event.detail.phoneId);
+    var mouseOutPromise = this._getMouseOutPromise();
+
+    Promise.all([phoneRequest, mouseOutPromise])
+      .then(function(data) {
+        this._renderPhone(data[0]);
+      }.bind(this));
+      //.catch(function(error) {
+      //  alert(error.message)
+      //});
   }
 
-  _loadPhone(phoneId) {
-    this._xhr = new XMLHttpRequest();
-
-    this._xhr.open('GET', 'phones/' + phoneId + '.json', true);
-
-    this._xhr.addEventListener('load', this._phoneLoaded.bind(this));
-
-    this._xhr.send();
+  _getMouseOutPromise() {
+    return new Promise(
+      function(resolve, reject) {
+        this._menu.getElement().addEventListener('mouseout', function(event) {
+          resolve();
+        });
+      }.bind(this)
+    );
   }
 
-  _phoneLoaded() {
-    var data = JSON.parse(this._xhr.responseText);
+  _getPhone(phoneId) {
+    return new Promise(function(resolve, reject) {
+      let xhr = new XMLHttpRequest();
 
+      xhr.open('GET', 'phones/' + phoneId + '.json', true);
+
+      xhr.addEventListener('load', function() {
+        setTimeout(function() {
+          resolve(JSON.parse(xhr.responseText));
+        }, 5000);
+      }.bind(this));
+
+      xhr.addEventListener('error', function() {
+        reject(new Error(xhr.statusText));
+      });
+
+      xhr.send();
+    });
+  }
+
+  _renderPhone(data) {
     this._mainContent.innerHTML = '<img src="' + data.images[0] + '">';
   }
 
